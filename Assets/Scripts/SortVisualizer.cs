@@ -1,4 +1,5 @@
 // Assets/Scripts/SortVisualizer.cs
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,8 +18,6 @@ public class SortVisualizer : MonoBehaviour
 
     void Start()
     {
-        startButton.onClick.AddListener(() => StartRun());
-        pauseButton.onClick.AddListener(() => TogglePause());
         speedSlider.onValueChanged.AddListener((v) => stepDelay = Mathf.Lerp(0.1f, 1.0f, 1f - v)); // slider 0..1
 
         Debug.Log("SortVisualizer listeners assigned");
@@ -27,26 +26,24 @@ public class SortVisualizer : MonoBehaviour
     public void StartRun()
     {
         if (runningRoutine != null) StopCoroutine(runningRoutine);
-        // for this example assume algorithm selected stored somewhere; fallback to bubble
-        string algo = AlgorithmSelector.SelectedAlgorithm ?? "bubble";
         var items = digitManager.GetVisualItems();
-        runningRoutine = StartCoroutine(RunAlgorithm(algo, items));
+        Debug.Log("Sort : " + Helper.GetSortName());
+        runningRoutine = StartCoroutine(RunAlgorithm(items));
     }
 
-    public void TogglePause()
-    {
-        paused = !paused;
-    }
+    public void TogglePause() => paused = !paused;
 
-    IEnumerator RunAlgorithm(string algo, List<VisualNumberItem> items)
+    IEnumerator RunAlgorithm(List<VisualNumberItem> items)
     {
-        switch (algo)
+        switch (UIManager.SelectedSort)
         {
-            case "bubble": yield return StartCoroutine(BubbleSort(items)); break;
-            case "selection": yield return StartCoroutine(SelectionSort(items)); break;
-            case "insertion": yield return StartCoroutine(InsertionSort(items)); break;
-            // more algorithms later
-            default: yield return StartCoroutine(BubbleSort(items)); break;
+            case Sort.Bubble:       yield return StartCoroutine(BubbleSort(items)); break;
+            case Sort.Selection:    yield return StartCoroutine(SelectionSort(items)); break;
+            case Sort.Insertion:    yield return StartCoroutine(InsertionSort(items)); break;
+            //case Sort.Merge:        yield return StartCoroutine(MergeSort(items)); break;
+            //case Sort.Quick:        yield return StartCoroutine(QuickSort(items)); break;
+            //case Sort.Heap:         yield return StartCoroutine(HeapSort(items)); break;
+            default:                yield return StartCoroutine(BubbleSort(items)); break;
         }
     }
 
