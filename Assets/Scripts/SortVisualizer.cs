@@ -16,6 +16,9 @@ public class SortVisualizer : MonoBehaviour
     private Coroutine runningRoutine;
     private bool paused = false;
 
+    private List<int> realItems = new List<int>();
+    private List<MovementAnimation> movements = new List<MovementAnimation>();
+
     void Start()
     {
         speedSlider.onValueChanged.AddListener((v) => stepDelay = Mathf.Lerp(0.1f, 1.0f, 1f - v)); // slider 0..1
@@ -23,27 +26,81 @@ public class SortVisualizer : MonoBehaviour
         Debug.Log("SortVisualizer listeners assigned");
     }
 
+    private void CreateRealItems(List<VisualNumberItem> items)
+    {
+        movements.Clear();
+        realItems.Clear();
+
+        for (int i = 0; i < items.Count; i++)
+            realItems.Add(items[i].value);
+
+        Debug.Log(string.Join(", ", realItems));
+    }
+
     public void StartRun()
     {
         if (runningRoutine != null) StopCoroutine(runningRoutine);
+
         var items = digitManager.GetVisualItems();
-        Debug.Log("Sort : " + Helper.GetSortName());
-        runningRoutine = StartCoroutine(RunAlgorithm(items));
+        CreateRealItems(items);
+        //digitManager.ChangeValueInArrayField(digitManager.ArrayField.text);
+        RunAlgorithm();
+        runningRoutine = StartCoroutine(AnimateMovements(items));
+    }
+
+    // Bad practise i know
+    public void ResetArrayField()
+    {
+        digitManager.ArrayField.text = digitManager.ArrayField.text + " ";
     }
 
     public void TogglePause() => paused = !paused;
 
-    IEnumerator RunAlgorithm(List<VisualNumberItem> items)
+    void RunAlgorithm()
     {
-        switch (UIManager.SelectedSort)
+        Debug.Log("Sort : " + Helper.GetSortName());
+
+        if (UIManager.IsFromMinToMax())
         {
-            case Sort.Bubble:       yield return StartCoroutine(BubbleSort(items)); break;
-            case Sort.Selection:    yield return StartCoroutine(SelectionSort(items)); break;
-            case Sort.Insertion:    yield return StartCoroutine(InsertionSort(items)); break;
-            //case Sort.Merge:        yield return StartCoroutine(MergeSort(items)); break;
-            //case Sort.Quick:        yield return StartCoroutine(QuickSort(items)); break;
-            //case Sort.Heap:         yield return StartCoroutine(HeapSort(items)); break;
-            default:                yield return StartCoroutine(BubbleSort(items)); break;
+            switch (UIManager.SelectedSort)
+            {
+                case Sort.Bubble:           BubbleSortMinToMax(); break;
+                case Sort.Selection:        SelectionSortMinToMax(); break;
+                //case Sort.Insertion:    yield return StartCoroutine(InsertionSort(items)); break;
+                //case Sort.Merge:        yield return StartCoroutine(MergeSort(items)); break;
+                //case Sort.Quick:        yield return StartCoroutine(QuickSort(items)); break;
+                //case Sort.Heap:         yield return StartCoroutine(HeapSort(items)); break;
+                default:                    BubbleSortMinToMax(); break;
+            }
+        }
+        else
+        {
+            switch (UIManager.SelectedSort)
+            {
+                case Sort.Bubble:           BubbleSortMaxToMin(); break;
+                case Sort.Selection:        SelectionSortMaxToMin(); break;
+                //case Sort.Insertion:    yield return StartCoroutine(InsertionSort(items)); break;
+                //case Sort.Merge:        yield return StartCoroutine(MergeSort(items)); break;
+                //case Sort.Quick:        yield return StartCoroutine(QuickSort(items)); break;
+                //case Sort.Heap:         yield return StartCoroutine(HeapSort(items)); break;
+                default:                    BubbleSortMaxToMin(); break;
+            }
+        }
+
+        PrintRealItems();
+    }
+
+    void PrintRealItems()
+    {
+        Debug.Log(string.Join(", ", realItems));
+        Debug.Log("--------------------------------------");
+    }
+
+    IEnumerator AnimateMovements(List<VisualNumberItem> items)
+    {
+        for (int i = 0; i < movements.Count; i++)
+        {
+            yield return AnimateSwap(items[movements[i].from], items[movements[i].to]);
         }
     }
 
@@ -57,57 +114,120 @@ public class SortVisualizer : MonoBehaviour
         }
     }
 
-    IEnumerator BubbleSort(List<VisualNumberItem> items)
+    void BubbleSortMinToMax()
     {
-        int n = items.Count;
-        for (int i = 0; i < n - 1; i++)
+        int length = realItems.Count;
+        bool swapped;
+
+        for (int i = 0; i < length - 1; i++)
         {
-            for (int j = 0; j < n - i - 1; j++)
+            swapped = false;
+
+            for (int j = 0; j < length - i - 1; j++)
             {
-                HighlightPair(items, j, j + 1, true);
-                yield return WaitWhileNotPausedCoroutine(stepDelay);
-                if (items[j].value > items[j + 1].value)
+                if (realItems[j] > realItems[j +1])
                 {
-                    yield return StartCoroutine(AnimateSwap(items[j], items[j + 1]));
-                    // swap in list
-                    var tmp = items[j];
-                    items[j] = items[j + 1];
-                    items[j + 1] = tmp;
-                    // update indexes
-                    items[j].index = j;
-                    items[j + 1].index = j + 1;
+                    swapped = true;
+
+                    var temp = realItems[j];
+                    realItems[j] = realItems[j + 1];
+                    realItems[j + 1] = temp;
+
+                    movements.Add(new MovementAnimation(j, j + 1));
                 }
-                HighlightPair(items, j, j + 1, false);
             }
+
+            if (!swapped) break;
         }
     }
 
-    IEnumerator SelectionSort(List<VisualNumberItem> items)
+    void BubbleSortMaxToMin()
     {
-        int n = items.Count;
-        for (int i = 0; i < n - 1; i++)
+        int length = realItems.Count;
+        bool swapped;
+
+        for (int i = 0; i < length - 1; i++)
+        {
+            swapped = false;
+
+            for (int j = 0; j < length - i - 1; j++)
+            {
+                if (realItems[j] < realItems[j + 1])
+                {
+                    swapped = true;
+
+                    var temp = realItems[j];
+                    realItems[j] = realItems[j + 1];
+                    realItems[j + 1] = temp;
+
+                    movements.Add(new MovementAnimation(j, j + 1));
+                }
+            }
+
+            if (!swapped) break;
+        }
+    }
+
+    void SelectionSortMinToMax()
+    {
+        int lenght = realItems.Count;
+        for (int i = 0; i < lenght - 1; i++)
         {
             int minIdx = i;
-            for (int j = i + 1; j < n; j++)
+            for (int j = i + 1; j < lenght; j++)
             {
-                items[minIdx].Highlight(false);
-                items[j].Highlight(true);
-                yield return WaitWhileNotPausedCoroutine(stepDelay);
-                if (items[j].value < items[minIdx].value)
+                //items[minIdx].Highlight(false);
+                //items[j].Highlight(true);
+                //yield return WaitWhileNotPausedCoroutine(stepDelay);
+                if (realItems[j] < realItems[minIdx])
                 {
-                    items[minIdx].Highlight(false);
+                    //items[minIdx].Highlight(false);
                     minIdx = j;
                 }
                 else
                 {
-                    items[j].Highlight(false);
+                    //items[j].Highlight(false);
                 }
             }
             if (minIdx != i)
             {
-                yield return StartCoroutine(AnimateSwap(items[i], items[minIdx]));
-                var tmp = items[i]; items[i] = items[minIdx]; items[minIdx] = tmp;
-                items[i].index = i; items[minIdx].index = minIdx;
+                //yield return StartCoroutine(AnimateSwap(items[i], items[minIdx]));
+                var tmp = realItems[i];
+                realItems[i] = realItems[minIdx];
+                realItems[minIdx] = tmp;
+
+                movements.Add(new MovementAnimation(i, minIdx));
+                //items[i].index = i;
+                //items[minIdx].index = minIdx;
+            }
+        }
+    }
+
+    void SelectionSortMaxToMin()
+    {
+        int lenght = realItems.Count;
+        for (int i = lenght - 1; i > 0; i--)
+        {
+            int minIdx = 0;
+            for (int j = 1; j <= i; j++)
+            {
+                if (realItems[j] < realItems[minIdx])
+                {
+                    minIdx = j;
+                }
+                else
+                {
+
+                }
+            }
+
+            if (minIdx != i)
+            {
+                var tmp = realItems[i];
+                realItems[i] = realItems[minIdx];
+                realItems[minIdx] = tmp;
+
+                movements.Add(new MovementAnimation(i, minIdx));
             }
         }
     }

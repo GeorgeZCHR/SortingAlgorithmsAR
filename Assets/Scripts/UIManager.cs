@@ -1,7 +1,20 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance { get; private set; }
+    public Toggle MinOrMax;
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
+    public static bool IsFromMinToMax()
+    {
+        return Instance.MinOrMax.isOn;
+    }
 
     public static Sort SelectedSort;
     void Start()
