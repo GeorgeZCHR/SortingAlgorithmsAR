@@ -39,6 +39,7 @@ public class SortVisualizer : MonoBehaviour
 
     public void StartRun()
     {
+        Debug.Log("StartRun called at frame: " + Time.frameCount);
         if (runningRoutine != null) StopCoroutine(runningRoutine);
 
         var items = digitManager.GetVisualItems();
