@@ -46,7 +46,10 @@ public class SortVisualizer : MonoBehaviour
         CreateRealItems(items);
         //digitManager.ChangeValueInArrayField(digitManager.ArrayField.text);
         RunAlgorithm();
-        runningRoutine = StartCoroutine(AnimateMovements(items));
+        if (UIManager.SelectedSort == Sort.Bubble || UIManager.SelectedSort == Sort.Selection)
+            runningRoutine = StartCoroutine(AnimateMovements(items));
+        else
+            ChangePos(items);
     }
 
     // Bad practise i know
@@ -68,7 +71,7 @@ public class SortVisualizer : MonoBehaviour
                 case Sort.Bubble:           BubbleSortMinToMax(); break;
                 case Sort.Selection:        SelectionSortMinToMax(); break;
                 //case Sort.Insertion:    yield return StartCoroutine(InsertionSort(items)); break;
-                //case Sort.Merge:        yield return StartCoroutine(MergeSort(items)); break;
+                case Sort.Merge:            MergeSort(realItems, true); break;
                 //case Sort.Quick:        yield return StartCoroutine(QuickSort(items)); break;
                 //case Sort.Heap:         yield return StartCoroutine(HeapSort(items)); break;
                 default:                    BubbleSortMinToMax(); break;
@@ -81,7 +84,7 @@ public class SortVisualizer : MonoBehaviour
                 case Sort.Bubble:           BubbleSortMaxToMin(); break;
                 case Sort.Selection:        SelectionSortMaxToMin(); break;
                 //case Sort.Insertion:    yield return StartCoroutine(InsertionSort(items)); break;
-                //case Sort.Merge:        yield return StartCoroutine(MergeSort(items)); break;
+                case Sort.Merge:            MergeSort(realItems, false); break;
                 //case Sort.Quick:        yield return StartCoroutine(QuickSort(items)); break;
                 //case Sort.Heap:         yield return StartCoroutine(HeapSort(items)); break;
                 default:                    BubbleSortMaxToMin(); break;
@@ -102,6 +105,14 @@ public class SortVisualizer : MonoBehaviour
         for (int i = 0; i < movements.Count; i++)
         {
             yield return AnimateSwap(items[movements[i].from], items[movements[i].to]);
+        }
+    }
+
+    void ChangePos(List<VisualNumberItem> items) // Actually it changes the text
+    {
+        for (int i = 0; i < realItems.Count; i++)
+        {
+            items[i].SetValue(realItems[i], i);
         }
     }
 
@@ -255,6 +266,53 @@ public class SortVisualizer : MonoBehaviour
             keyItem.index = j + 1;
             keyItem.Highlight(false);
         }
+    }
+
+    void MergeSort(List<int> items, bool isMinToMax)
+    {
+        if (items.Count <= 1) return;
+
+        int mid = items.Count / 2;
+
+        // Split the list
+        List<int> left = items.GetRange(0, mid);
+        List<int> right = items.GetRange(mid, items.Count - mid);
+
+        // Recursively sort both halves
+        MergeSort(left, isMinToMax);
+        MergeSort(right, isMinToMax);
+
+        // Merge back into original list
+        Merge(items, left, right, isMinToMax);
+    }
+
+    void Merge(List<int> result, List<int> left, List<int> right, bool isMinToMax)
+    {
+        int i = 0, j = 0, k = 0;
+
+        // Main merge loop
+        while (i < left.Count && j < right.Count)
+        {
+            if (isMinToMax)
+            {
+                if (left[i] <= right[j])    result[k++] = left[i++];
+                else                        result[k++] = right[j++];
+            }
+            else
+            {
+                if (left[i] >= right[j])    result[k++] = left[i++];
+                else                        result[k++] = right[j++];
+            }
+        }
+
+        // Copy remaining elements from left
+        while (i < left.Count) result[k++] = left[i++];
+
+        // Copy remaining elements from right
+        while (j < right.Count) result[k++] = right[j++];
+
+        // Update realItems
+        realItems = new List<int>(result);
     }
 
     IEnumerator WaitWhileNotPausedCoroutine(float t)
