@@ -1,27 +1,43 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SortVisualizer : MonoBehaviour
 {
+    [Header("AR / UI")]
     public ARNarrationController arNarration;
     public DigitManager digitManager;
+
+    [Header("Bars Parent")]
+    public Transform barsParent;
+
+    [Header("Timing")]
     public float stepDelay = 0.6f;
 
     private Coroutine runningRoutine;
-    private bool paused = false;
+    private bool paused;
+    private bool isSorting;
 
     private List<int> realItems = new List<int>();
     private List<MovementAnimation> movements = new List<MovementAnimation>();
 
-    void Start()
+    void Awake()
     {
-        Debug.Log("SortVisualizer initialized");
+        if (barsParent == null)
+        {
+            Debug.LogError("SortVisualizer: barsParent is NULL (Inspector)");
+            enabled = false;
+        }
     }
-    // Called from AR Image Tracker
+
+    /* ===================== AR ENTRY ===================== */
+
     public void StartSortFromCard(string code)
     {
+        if (isSorting) return;
+
+        isSorting = true;
+
         switch (code.ToUpper())
         {
             case "B": UIManager.SelectedSort = Sort.Bubble; break;
@@ -33,10 +49,11 @@ public class SortVisualizer : MonoBehaviour
 
             default:
                 Debug.LogWarning("Unknown AR card: " + code);
+                isSorting = false;
                 return;
         }
 
-        Debug.Log($"AR Card detected → Starting {UIManager.SelectedSort} sort");
+        Debug.Log("AR Card detected → " + UIManager.SelectedSort);
         StartRun();
     }
 
@@ -75,137 +92,81 @@ public class SortVisualizer : MonoBehaviour
 
     void RunAlgorithm()
     {
-        bool ascending = UIManager.IsFromMinToMax();
+        bool asc = UIManager.IsFromMinToMax();
 
         switch (UIManager.SelectedSort)
         {
             case Sort.Bubble:
-                if (ascending) BubbleSortAscending();
+                if (asc) BubbleSortAscending();
                 else BubbleSortDescending();
                 break;
 
             case Sort.Selection:
-                if (ascending) SelectionSortAscending();
+                if (asc) SelectionSortAscending();
                 else SelectionSortDescending();
                 break;
 
             case Sort.Insertion:
-                if (ascending) InsertionSortAscending();
+                if (asc) InsertionSortAscending();
                 else InsertionSortDescending();
                 break;
 
             case Sort.Merge:
-                if (ascending) MergeSortAscending(0, realItems.Count - 1);
+                if (asc) MergeSortAscending(0, realItems.Count - 1);
                 else MergeSortDescending(0, realItems.Count - 1);
                 break;
 
             case Sort.Quick:
-                if (ascending) QuickSortAscending(0, realItems.Count - 1);
+                if (asc) QuickSortAscending(0, realItems.Count - 1);
                 else QuickSortDescending(0, realItems.Count - 1);
                 break;
         }
-
-        Debug.Log("Sorted array: " + string.Join(", ", realItems));
     }
 
-    /* ===================== BUBBLE SORT ===================== */
+    /* ===================== SORTS ===================== */
 
     void BubbleSortAscending()
     {
-        SetNarration("Starting Bubble Sort in ascending order.");
-
         for (int i = 0; i < realItems.Count - 1; i++)
-        {
             for (int j = 0; j < realItems.Count - i - 1; j++)
-            {
                 if (realItems[j] > realItems[j + 1])
-                {
-                    SetNarration($"Swapping {realItems[j]} and {realItems[j + 1]}.");
-
                     Swap(j, j + 1);
-                }
-            }
-        }
-
-        SetNarration("Bubble Sort completed.");
     }
 
     void BubbleSortDescending()
     {
-        SetNarration("Starting Bubble Sort in descending order.");
-
         for (int i = 0; i < realItems.Count - 1; i++)
-        {
             for (int j = 0; j < realItems.Count - i - 1; j++)
-            {
                 if (realItems[j] < realItems[j + 1])
-                {
-                    SetNarration($"Swapping {realItems[j]} and {realItems[j + 1]}.");
-
                     Swap(j, j + 1);
-                }
-            }
-        }
-
-        SetNarration("Bubble Sort completed.");
     }
-
-    /* ===================== SELECTION SORT ===================== */
 
     void SelectionSortAscending()
     {
-        SetNarration("Starting Selection Sort in ascending order.");
-
         for (int i = 0; i < realItems.Count - 1; i++)
         {
             int min = i;
-
             for (int j = i + 1; j < realItems.Count; j++)
-            {
-                if (realItems[j] < realItems[min])
-                {
-                    min = j;
-                    SetNarration($"New minimum found: {realItems[min]}.");
-                }
-            }
+                if (realItems[j] < realItems[min]) min = j;
 
-            if (min != i)
-                Swap(i, min);
+            if (min != i) Swap(i, min);
         }
-
-        SetNarration("Selection Sort completed.");
     }
 
     void SelectionSortDescending()
     {
-        SetNarration("Starting Selection Sort in descending order.");
-
         for (int i = 0; i < realItems.Count - 1; i++)
         {
             int max = i;
-
             for (int j = i + 1; j < realItems.Count; j++)
-            {
-                if (realItems[j] > realItems[max])
-                {
-                    max = j;
-                    SetNarration($"New maximum found: {realItems[max]}.");
-                }
-            }
+                if (realItems[j] > realItems[max]) max = j;
 
-            if (max != i)
-                Swap(i, max);
+            if (max != i) Swap(i, max);
         }
-
-        SetNarration("Selection Sort completed.");
     }
-
-    /* ===================== INSERTION SORT ===================== */
 
     void InsertionSortAscending()
     {
-        SetNarration("Starting Insertion Sort in ascending order.");
-
         for (int i = 1; i < realItems.Count; i++)
         {
             int key = realItems[i];
@@ -220,14 +181,10 @@ public class SortVisualizer : MonoBehaviour
 
             realItems[j + 1] = key;
         }
-
-        SetNarration("Insertion Sort completed.");
     }
 
     void InsertionSortDescending()
     {
-        SetNarration("Starting Insertion Sort in descending order.");
-
         for (int i = 1; i < realItems.Count; i++)
         {
             int key = realItems[i];
@@ -242,67 +199,23 @@ public class SortVisualizer : MonoBehaviour
 
             realItems[j + 1] = key;
         }
-
-        SetNarration("Insertion Sort completed.");
     }
 
-    /* ===================== MERGE SORT ===================== */
-
-    void MergeSortAscending(int left, int right)
+    void MergeSortAscending(int l, int r)
     {
-        if (left >= right) return;
-
-        int mid = (left + right) / 2;
-        MergeSortAscending(left, mid);
-        MergeSortAscending(mid + 1, right);
-        MergeAscending(left, mid, right);
+        if (l >= r) return;
+        int m = (l + r) / 2;
+        MergeSortAscending(l, m);
+        MergeSortAscending(m + 1, r);
     }
 
-    void MergeSortDescending(int left, int right)
+    void MergeSortDescending(int l, int r)
     {
-        if (left >= right) return;
-
-        int mid = (left + right) / 2;
-        MergeSortDescending(left, mid);
-        MergeSortDescending(mid + 1, right);
-        MergeDescending(left, mid, right);
+        if (l >= r) return;
+        int m = (l + r) / 2;
+        MergeSortDescending(l, m);
+        MergeSortDescending(m + 1, r);
     }
-
-    void MergeAscending(int l, int m, int r)
-    {
-        List<int> temp = new List<int>(realItems);
-        int i = l, j = m + 1, k = l;
-
-        while (i <= m && j <= r)
-        {
-            if (temp[i] <= temp[j])
-                realItems[k++] = temp[i++];
-            else
-            {
-                movements.Add(new MovementAnimation(k, j));
-                realItems[k++] = temp[j++];
-            }
-        }
-    }
-
-    void MergeDescending(int l, int m, int r)
-    {
-        List<int> temp = new List<int>(realItems);
-        int i = l, j = m + 1, k = l;
-
-        while (i <= m && j <= r)
-        {
-            if (temp[i] >= temp[j])
-                realItems[k++] = temp[i++];
-            else
-            {
-                movements.Add(new MovementAnimation(k, j));
-                realItems[k++] = temp[j++];
-            }
-        }
-    }
-
-    /* ===================== QUICK SORT ===================== */
 
     void QuickSortAscending(int low, int high)
     {
@@ -330,13 +243,8 @@ public class SortVisualizer : MonoBehaviour
         int i = low - 1;
 
         for (int j = low; j < high; j++)
-        {
             if (realItems[j] < pivot)
-            {
-                i++;
-                Swap(i, j);
-            }
-        }
+                Swap(++i, j);
 
         Swap(i + 1, high);
         return i + 1;
@@ -348,25 +256,20 @@ public class SortVisualizer : MonoBehaviour
         int i = low - 1;
 
         for (int j = low; j < high; j++)
-        {
             if (realItems[j] > pivot)
-            {
-                i++;
-                Swap(i, j);
-            }
-        }
+                Swap(++i, j);
 
         Swap(i + 1, high);
         return i + 1;
     }
 
-    /* ===================== UTILITIES ===================== */
+    /* ===================== ANIMATION ===================== */
 
     void Swap(int a, int b)
     {
-        int temp = realItems[a];
+        int t = realItems[a];
         realItems[a] = realItems[b];
-        realItems[b] = temp;
+        realItems[b] = t;
 
         movements.Add(new MovementAnimation(a, b));
     }
@@ -376,18 +279,9 @@ public class SortVisualizer : MonoBehaviour
         foreach (var m in movements)
         {
             yield return AnimateSwap(items[m.from], items[m.to]);
-            yield return WaitWhileNotPaused(stepDelay);
+            yield return new WaitForSeconds(stepDelay);
         }
-    }
-
-    IEnumerator WaitWhileNotPaused(float t)
-    {
-        float elapsed = 0;
-        while (elapsed < t)
-        {
-            if (!paused) elapsed += Time.deltaTime;
-            yield return null;
-        }
+        isSorting = false;
     }
 
     IEnumerator AnimateSwap(VisualNumberItem a, VisualNumberItem b)
@@ -402,21 +296,15 @@ public class SortVisualizer : MonoBehaviour
         while (t < 0.25f)
         {
             t += Time.deltaTime;
-            float f = t / 0.25f;
-            ra.localPosition = Vector3.Lerp(pa, pb, f);
-            rb.localPosition = Vector3.Lerp(pb, pa, f);
+            ra.localPosition = Vector3.Lerp(pa, pb, t / 0.25f);
+            rb.localPosition = Vector3.Lerp(pb, pa, t / 0.25f);
             yield return null;
         }
 
         ra.localPosition = pa;
         rb.localPosition = pb;
 
-        string txt = a.numberText.text;
-        a.numberText.text = b.numberText.text;
-        b.numberText.text = txt;
-
-        int v = a.value;
-        a.value = b.value;
-        b.value = v;
+        (a.value, b.value) = (b.value, a.value);
+        (a.numberText.text, b.numberText.text) = (b.numberText.text, a.numberText.text);
     }
 }
