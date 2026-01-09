@@ -1142,7 +1142,7 @@ MonoBehaviour:
   <trackablesChanged>k__BackingField:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11400000, guid: 1c2dcfa1c12ae0e49a2bd87eae3f2eba, type: 2}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: 
         m_Mode: 0
@@ -1154,8 +1154,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_SerializedLibrary: {fileID: 11400000, guid: 1c2dcfa1c12ae0e49a2bd87eae3f2eba,
-    type: 2}
+  m_SerializedLibrary: {fileID: 0}
   m_MaxNumberOfMovingImages: 2
   m_TrackedImagePrefab: {fileID: 0}
 --- !u!1 &410087039
@@ -4355,8 +4354,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4966719baa26e4b0e8231a24d9bd491a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FocusMode: 1
-  m_LightEstimationMode: 0
+  m_FocusMode: -1
+  m_LightEstimationMode: -1
   m_AutoFocus: 1
   m_ImageStabilization: 0
   m_LightEstimation: 0
@@ -5018,8 +5017,7 @@ MonoBehaviour:
   <trackablesChanged>k__BackingField:
     m_PersistentCalls:
       m_Calls: []
-  m_SerializedLibrary: {fileID: 11400000, guid: 1c2dcfa1c12ae0e49a2bd87eae3f2eba,
-    type: 2}
+  m_SerializedLibrary: {fileID: 0}
   m_MaxNumberOfMovingImages: 0
   m_TrackedImagePrefab: {fileID: 399796694}
 --- !u!114 &1738730683
@@ -5442,6 +5440,7 @@ GameObject:
   - component: {fileID: 1964602100}
   - component: {fileID: 1964602099}
   - component: {fileID: 1964602098}
+  - component: {fileID: 1964602101}
   m_Layer: 0
   m_Name: XR Origin
   m_TagString: Untagged
@@ -5467,7 +5466,7 @@ MonoBehaviour:
   m_SerializedLibrary: {fileID: 11400000, guid: 1c2dcfa1c12ae0e49a2bd87eae3f2eba,
     type: 2}
   m_MaxNumberOfMovingImages: 0
-  m_TrackedImagePrefab: {fileID: 0}
+  m_TrackedImagePrefab: {fileID: 362164422}
 --- !u!114 &1964602099
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5501,6 +5500,25 @@ Transform:
   - {fileID: 773190230}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1964602101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964602097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b213b1c0048b48b448075eee0d7a3b9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ArPrefabs:
+  - {fileID: 8480776635679163424, guid: 2daaf008fa7ec074f89bf0a6303d1437, type: 3}
+  - {fileID: 4158476061402455869, guid: 42a63cdc5926bb4479cbaf22c673fbfe, type: 3}
+  - {fileID: 6387101217815789681, guid: c5d8ae73d6fac9846856f49805bd9148, type: 3}
+  - {fileID: 5555254916932518295, guid: 39764b140421dfc4f96ca4d79b87f22b, type: 3}
+  - {fileID: 1533780382925723034, guid: b3e17f8f5a3c62b4d9d045d6bf45c85e, type: 3}
+  - {fileID: 332148911150846016, guid: cc7a22f3b94017d4489f254a11d64ddd, type: 3}
 --- !u!1 &2013564524
 GameObject:
   m_ObjectHideFlags: 0
