@@ -8,6 +8,12 @@ using TMPro;
 [RequireComponent(typeof(RectTransform))]
 public class VisualNumberItem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
+    [Header("UI")]
+    public TMP_Text pauseButtonLabel;  
+    public Button startButton;
+    public Button resetButton;
+
+
     [Header("UI References")]
     public TextMeshProUGUI numberText;
     public Image background;

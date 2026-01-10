@@ -135,6 +135,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48f36fbda2e8dfe4fa8e6ed9adbc8afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pauseButtonLabel: {fileID: 0}
+  startButton: {fileID: 0}
+  resetButton: {fileID: 0}
   numberText: {fileID: 1183905889407696450}
   background: {fileID: 2291110741706609503}
   value: 0
@@ -233,8 +236,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4292869888
-  m_fontColor: {r: 0, g: 1, b: 0.87538624, a: 1}
+    rgba: 4294960384
+  m_fontColor: {r: 0, g: 0.8980392, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -257,7 +260,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
