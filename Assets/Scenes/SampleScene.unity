@@ -566,7 +566,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Select an algorithm to see how it works
+  m_text: Click on an algorithm to see how it works
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -631,7 +631,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 3.8845823, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -659,9 +659,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1174077011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 185}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -758.4724}
   m_SizeDelta: {x: 1000, y: 65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &342042093
@@ -1225,7 +1225,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trackedImageManager: {fileID: 399796701}
+  cardDetectedLabel: {fileID: 1964602099}
+  noCardText: No card detected
   acceptLimited: 1
+  clearAfterSeconds: 0.2
 --- !u!114 &399796701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1695,8 +1698,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35396b7c6246f8c4eb2a5ed00735bcfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardDetectedLabel: {fileID: 1964602099}
-  noSelectionText: Select an algorithm (card or button)
   bubbleButton: {fileID: 362164424}
   selectionButton: {fileID: 1179352979}
   insertionButton: {fileID: 1532662902}
@@ -2203,8 +2204,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -1605.8442}
-  m_SizeDelta: {x: -20, y: 270}
+  m_AnchoredPosition: {x: 0, y: -1559.0161}
+  m_SizeDelta: {x: -40, y: 270}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &707813403
 MonoBehaviour:
@@ -2460,7 +2461,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -506.84537, y: -1371.3367}
+  m_AnchoredPosition: {x: -506.84537, y: -1335.527}
   m_SizeDelta: {x: 1010, y: 83}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &773190231
@@ -3487,7 +3488,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MinOrMax: {fileID: 456379207}
-  arPriorityHoldSeconds: 0.75
 --- !u!114 &1174077013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4821,7 +4821,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Select an algorithm (card or button)
+  m_text: Select a sorting algorithm
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

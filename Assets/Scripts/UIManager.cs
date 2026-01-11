@@ -23,12 +23,24 @@ public class UIManager : MonoBehaviour
 
     public static event Action<Sort, SelectionSource> OnSelectionChanged;
 
-    // Anti-flicker: if AR selected recently, ignore button spam
-    [Header("Selection Priority")]
-    [Tooltip("For how many seconds after an AR selection we ignore button re-selections (prevents flicker).")]
-    [SerializeField] private float arPriorityHoldSeconds = 0.75f;
+    // ---- AR Lock (auto-release) ----
+    [Header("AR Lock")]
+    [Tooltip("How many seconds after last AR 'seen' we keep buttons locked. Use small value like 0.35 - 0.6")]
+    [SerializeField] private float arLockReleaseSeconds = 0.45f;
 
-    private static float _lastARSelectTime = -999f;
+    private static float _lastARSeenUnscaledTime = -999f;
+
+    /// <summary>
+    /// True only if AR has been seen recently (auto releases).
+    /// </summary>
+    public static bool ARLockActive
+    {
+        get
+        {
+            float release = (Instance != null) ? Instance.arLockReleaseSeconds : 0.45f;
+            return (Time.unscaledTime - _lastARSeenUnscaledTime) <= release;
+        }
+    }
 
     private void Awake()
     {
@@ -49,54 +61,46 @@ public class UIManager : MonoBehaviour
     public static bool IsFromMinToMax()
     {
         if (Instance == null || Instance.MinOrMax == null)
-            return true; // default ascending
+            return true;
 
         return Instance.MinOrMax.isOn;
     }
 
     /// <summary>
-    /// The ONLY method that should change selection.
-    /// Use this from buttons and from AR tracking.
+    /// Called by AlgorithmImageTracker when a card is ACTUALLY visible in camera view.
+    /// Keeps buttons locked briefly; auto-unlocks when AR not seen anymore.
+    /// </summary>
+    public static void NotifyARSeen()
+    {
+        _lastARSeenUnscaledTime = Time.unscaledTime;
+    }
+
+    /// <summary>
+    /// Single entry point for selection.
     /// </summary>
     public static void RequestSelection(Sort sort, SelectionSource source)
     {
-        // Safety
+        // Ignore button input while AR is actively seeing a card
+        if (source == SelectionSource.Buttons && ARLockActive)
+            return;
+
         if (sort == Sort.NotSelected)
         {
-            SetSelectionInternal(Sort.NotSelected, SelectionSource.None);
+            SelectedSort = Sort.NotSelected;
+            LastSource = SelectionSource.None;
+            OnSelectionChanged?.Invoke(SelectedSort, LastSource);
             return;
         }
-
-        // Anti-flicker rule:
-        // If AR selected recently, ignore Buttons trying to "keep" selection.
-        if (source == SelectionSource.Buttons)
-        {
-            float hold = (Instance != null) ? Instance.arPriorityHoldSeconds : 0.75f;
-            if (LastSource == SelectionSource.AR && (Time.time - _lastARSelectTime) <= hold)
-            {
-                // Ignore button spam during AR priority window
-                return;
-            }
-        }
-
-        // Track AR timestamp
-        if (source == SelectionSource.AR)
-            _lastARSelectTime = Time.time;
 
         // Don’t spam events if nothing changed
         if (SelectedSort == sort && LastSource == source)
             return;
 
-        SetSelectionInternal(sort, source);
-    }
-
-    private static void SetSelectionInternal(Sort sort, SelectionSource source)
-    {
         SelectedSort = sort;
         LastSource = source;
 
         OnSelectionChanged?.Invoke(SelectedSort, LastSource);
-        Debug.Log($"[UIManager] Selection => {SelectedSort} (source={LastSource})");
+        Debug.Log($"[UIManager] Selection => {SelectedSort} (source={LastSource}, ARLock={ARLockActive})");
     }
 
     // ---- Button hooks (assign these in OnClick) ----
